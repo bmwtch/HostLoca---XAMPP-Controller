@@ -21,7 +21,6 @@ Clone the repository
 ```
 git clone https://github.com/bmwtch/HostLoca---XAMPP-Controller.git
 cd HostLoca---XAMPP-Controller
-pip install -r requirements.txt
 python main.py
 ```
 
