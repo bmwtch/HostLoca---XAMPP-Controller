@@ -30,21 +30,11 @@ A packaged installer for Windows : https://github.com/bmwtch/HostLoca---XAMPP-Co
 ### Linux Support
 Linux packaging is planned but not yet available. Contributions from the community are welcome to help create AppImage, deb, or Flatpak packages.
 
-## Roadmap
-Windows installer  
-Linux packaging  
-Support for multiple databases such as MariaDB and PostgreSQL  
-Project templates for frameworks like WordPress and Laravel  
-Environment profiles for development, staging, and production  
-
 ## Contributing
 Contributions are welcome. Fork the repository, create a feature branch, and submit a pull request. Check the issues tab for tasks marked as good first issue if you are new to open source.
 
 ## Support
 If this project saves you time or effort you can support development by using the donate button included in the application. Starring the repository also helps spread the word.
-
-## Community
-Blog post and Reddit announcement will be shared soon. Updates will be posted regularly in developer communities.
 
 ## License
 This project is licensed under the MIT License. You are free to use, modify, and distribute it.
