@@ -25,7 +25,7 @@ python main.py
 ```
 
 ### Windows Desktop Version
-A packaged installer for Windows : https://github.com/bmwtch/HostLoca---XAMPP-Controller/releases/tag/v1.0.0
+A packaged installer for Windows : https://github.com/bmwtch/HostLoca---XAMPP-Controller/releases/tag/v1.0.1
 
 ### Linux Support
 Linux packaging is planned but not yet available. Contributions from the community are welcome to help create AppImage, deb, or Flatpak packages.
