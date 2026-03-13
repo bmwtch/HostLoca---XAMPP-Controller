@@ -1,7 +1,6 @@
-# gui/app_gui.py
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from modules import mysql, user_manager, apache
+from modules import mysql, user_manager, apache, php_manager
 import webbrowser
 
 class ControlPanelApp:
@@ -12,12 +11,11 @@ class ControlPanelApp:
 
         self.frame = tk.Frame(root, padx=20, pady=20)
         self.frame.pack(fill="both", expand=True)
-
         self.build_xampp_connector()
         self.build_htdocs_settings()
         self.build_db_control_board()
         self.build_user_management()
-
+        self.build_php_manager()
         self.build_footer_bar()
 
     def build_xampp_connector(self):
@@ -139,34 +137,102 @@ class ControlPanelApp:
         except Exception as e:
             messagebox.showerror("User Management", f"Error: {e}")
 
+    def build_php_manager(self):
+        section = tk.LabelFrame(self.frame, text="PHP Version Manager", padx=10, pady=10)
+        section.pack(fill="x", pady=5)
+
+        self.php_versions = php_manager.get_registered_versions(self.settings)
+        default_value = self.php_versions[0] if self.php_versions else "No versions"
+        self.selected_php = tk.StringVar(value=default_value)
+
+        values = self.php_versions if self.php_versions else ["No versions"]
+        self.version_menu = tk.OptionMenu(section, self.selected_php, *values)
+        self.version_menu.grid(row=0, column=0, padx=5, pady=5)
+
+        tk.Button(section, text="Upload PHP ZIP", command=self.upload_php_zip).grid(row=0, column=1, padx=5, pady=5)
+        tk.Button(section, text="Switch Version", command=self.switch_php_version).grid(row=0, column=2, padx=5, pady=5)
+
+        self.php_status = tk.Label(section, text="Active PHP: default")
+        self.php_status.grid(row=1, column=0, columnspan=3, sticky="ew", padx=5, pady=5)
+
+    def upload_php_zip(self):
+        zip_path = filedialog.askopenfilename(filetypes=[("ZIP files","*.zip")])
+        if zip_path:
+            try:
+                version = php_manager.install_php_zip(zip_path, self.settings)
+                messagebox.showinfo("PHP Manager", f"Installed PHP {version}")
+                self.refresh_php_versions()
+                self.php_status.config(text=f"Installed PHP {version}, not yet active")
+            except Exception as e:
+                messagebox.showerror("PHP Manager", f"Error: {e}")
+
+    def switch_php_version(self):
+        version = self.selected_php.get()
+        if not version or version == "No versions":
+            messagebox.showerror("PHP Manager", "No PHP version selected.")
+            return
+        try:
+            php_manager.switch_php_version(version, self.settings)
+            self.php_status.config(text=f"Active PHP: {version}")
+            messagebox.showinfo("PHP Manager", f"Switched to PHP {version}")
+        except Exception as e:
+            messagebox.showerror("PHP Manager", f"Error: {e}")
+
+    def refresh_php_versions(self):
+        self.php_versions = php_manager.get_registered_versions(self.settings)
+        menu = self.version_menu["menu"]
+        menu.delete(0, "end")
+        if self.php_versions:
+            for v in self.php_versions:
+                menu.add_command(label=v, command=lambda val=v: self.selected_php.set(val))
+            self.selected_php.set(self.php_versions[0])
+        else:
+            menu.add_command(label="No versions", command=lambda: self.selected_php.set("No versions"))
+            self.selected_php.set("No versions")
+
     def build_footer_bar(self):
         footer = tk.Frame(self.root, bg="#f0f0f0")
         footer.pack(side="bottom", fill="x")
-
-        def open_donate():
-            webbrowser.open("https://bmwtech.in/donateme.php")
-
-        donate_btn = tk.Button(
+        def make_link(parent, text, url, side):
+            lbl = tk.Label(
+                parent,
+                text=text,
+                fg="blue",
+                cursor="hand2",
+                font=("Segoe UI", 10, "bold")
+            )
+            lbl.bind("<Button-1>", lambda e: webbrowser.open(url))
+            lbl.pack(side=side, padx=20, pady=5)
+            return lbl
+        make_link(
             footer,
-            text="Donate Me",
-            command=open_donate,
-            bg="orange",
-            font=("Segoe UI", 12, "bold"),
-            width=20,
-            height=1
+            "Get Help",
+            "https://learn.bmwtech.in/hostloca-smarter-controller-for-xampp/",
+            "left"
         )
-        donate_btn.pack(side="top", pady=5)
+        make_link(
+            footer,
+            "Buy me a Coffee",
+            "https://bmwtech.in/donateme.php",
+            "left"
+        )
+        make_link(
+            footer,
+            "Contribute on GitHub",
+            "https://github.com/bmwtch/HostLoca---XAMPP-Controller/",
+            "right"
+        )
 
         note_text = (
             "This is an open source project created to help.\n"
-            "If you find it useful and wish to support, kindly consider donating."
+            "If you find it useful, kindly consider supporting."
         )
         note = tk.Label(
             self.root,
             text=note_text,
-            justify="left",
+            justify="center",
             wraplength=980,
             fg="green",
             font=("Segoe UI", 10, "bold")
         )
-        note.pack(side="bottom", pady=20)
+        note.pack(side="bottom", pady=10)
